@@ -11,7 +11,6 @@ const disk = PoissonDisk.new(GRID_WIDTH, GRID_HEIGHT, RADIUS);
 const canvas = document.getElementById('viz');
 canvas.height = (CELL_SIZE + 1) * GRID_HEIGHT + 1;
 canvas.width = (CELL_SIZE + 1) * GRID_WIDTH + 1;
-
 const ctx = canvas.getContext('2d');
 
 const getIndex = (row, column) => {
@@ -55,17 +54,13 @@ const drawRadius = () => {
         for (let col = 0; col < GRID_WIDTH; col++) {
             const idx = getIndex(row, col);
             if (cells[idx] === 1 || cells[idx] === 2) {
+                let cell_radius = CELL_SIZE * RADIUS;
                 ctx.beginPath();
                 let x = col * (CELL_SIZE + 1) + CELL_SIZE / 2 + 1;
                 let y = row * (CELL_SIZE + 1) + CELL_SIZE / 2 + 1;
                 ctx.ellipse(
                     x, y,
-                    RADIUS, RADIUS,
-                    0, 0, 2 * Math.PI
-                );
-                ctx.ellipse(
-                    x, y,
-                    RADIUS * 2, RADIUS * 2,
+                    cell_radius, cell_radius,
                     0, 0, 2 * Math.PI
                 );
                 ctx.stroke();
