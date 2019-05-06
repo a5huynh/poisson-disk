@@ -1,6 +1,10 @@
 # 🦀🐟 `poisson-disk`
 
-This is a Rust + WASM implementation of the algorithm presented in "[Fast Poisson Disk Sampling in Arbitrary Dimensions][paper-link]" aka the Bridson Algorithm.
+![example viz](docs/example.gif)
+
+This is a Rust + WASM implementation of the algorithm presented in
+"[Fast Poisson Disk Sampling in Arbitrary Dimensions][paper-link]" aka the
+Bridson Algorithm.
 
 The Rust code was meant to be extracted into it's own library to be used
 in a game that utilizes procedural generation. The WASM was used to
