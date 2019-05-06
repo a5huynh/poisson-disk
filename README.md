@@ -11,7 +11,7 @@ visualize the sampling and make sure things were being generated correctly.
 
 ## Building the rust + wasm.
 
-Make sure you have `wasm-pack` installed.
+Make sure you have [wasm-pack](https://github.com/rustwasm/wasm-pack) installed.
 
 ```
 cargo install
