@@ -13,7 +13,7 @@ visualize the sampling and make sure things were being generated correctly.
 [paper-link]: https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
 
 
-## Building the rust + wasm.
+## Building the rust binary + WASM bindings.
 
 Make sure you have [wasm-pack](https://github.com/rustwasm/wasm-pack) installed.
 
