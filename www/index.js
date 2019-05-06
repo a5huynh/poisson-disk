@@ -5,8 +5,9 @@ const CELL_SIZE = 5;
 const GRID_WIDTH = 256;
 const GRID_HEIGHT = 96;
 const RADIUS = 10;
+const NUM_SAMPLES = 5;
 
-const disk = PoissonDisk.new(GRID_WIDTH, GRID_HEIGHT, RADIUS);
+const disk = PoissonDisk.new(GRID_WIDTH, GRID_HEIGHT, RADIUS, NUM_SAMPLES);
 
 const canvas = document.getElementById('viz');
 canvas.height = (CELL_SIZE + 1) * GRID_HEIGHT + 1;

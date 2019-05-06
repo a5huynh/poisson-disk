@@ -32,7 +32,7 @@ pub struct PoissonDisk {
     cell_height: f64,
     cells: Vec<Cell>,
     radius: u32,
-    num_samples: usize,
+    num_samples: u32,
     // Grid used to determine point sampling.
     grid: Vec<Option<(usize, usize)>>,
     // List of points we want to generate more points around.
@@ -41,7 +41,7 @@ pub struct PoissonDisk {
 
 #[wasm_bindgen]
 impl PoissonDisk {
-    pub fn new(width: u32, height: u32, radius: u32) -> Self {
+    pub fn new(width: u32, height: u32, radius: u32, num_samples: u32) -> Self {
         let cells = vec![Cell::EMPTY; (width * height) as usize];
 
         // Step 0
@@ -63,7 +63,7 @@ impl PoissonDisk {
             cell_height,
             grid,
             radius,
-            num_samples: 5,
+            num_samples,
             active: Vec::new(),
         };
 
