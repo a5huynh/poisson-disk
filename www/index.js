@@ -1,84 +1,59 @@
 import { PoissonDisk } from "poisson-disk";
-import { memory } from "poisson-disk/poisson_disk_bg";
 
-const CELL_SIZE = 5;
-const GRID_WIDTH = 256;
-const GRID_HEIGHT = 96;
-const RADIUS = 10;
+const RADIUS = 5;
 const NUM_SAMPLES = 5;
 
-const disk = PoissonDisk.new(GRID_WIDTH, GRID_HEIGHT, RADIUS, NUM_SAMPLES);
-
 const canvas = document.getElementById('viz');
-canvas.height = (CELL_SIZE + 1) * GRID_HEIGHT + 1;
-canvas.width = (CELL_SIZE + 1) * GRID_WIDTH + 1;
+const GRID_WIDTH = canvas.width;
+const GRID_HEIGHT = canvas.height;
+
+const disk = PoissonDisk.new(GRID_WIDTH, GRID_HEIGHT, RADIUS, NUM_SAMPLES);
 const ctx = canvas.getContext('2d');
+
+if (window.devicePixelRatio > 1) {
+    var canvasWidth = canvas.width;
+    var canvasHeight = canvas.height;
+    canvas.width = canvasWidth * window.devicePixelRatio;
+    canvas.height = canvasHeight * window.devicePixelRatio;
+    canvas.style.width = canvasWidth;
+    canvas.style.height = canvasHeight;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
 
 const getIndex = (row, column) => {
     return row * GRID_WIDTH + column;
 };
 
-const drawCells = () => {
-    const cellsPtr = disk.cells();
-    const cells = new Uint8Array(memory.buffer, cellsPtr, GRID_WIDTH * GRID_HEIGHT);
+const drawSamples = (drawRadius) => {
+    const num_points = disk.num_points();
 
-    ctx.beginPath();
+    for (let i = 0; i < num_points; i++) {
+        const point = disk.point_at_idx(i);
 
-    for (let row = 0; row < GRID_HEIGHT; row++) {
-        for (let col = 0; col < GRID_WIDTH; col++) {
-            const idx = getIndex(row, col);
-            if (cells[idx] === 1) {
-                ctx.fillStyle = '#000000';
-            } else if (cells[idx] === 2) {
-                ctx.fillStyle = '#FF0000';
-            } else {
-                ctx.fillStyle = '#FFFFFF';
-            }
+        ctx.beginPath();
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(point[0], point[1], 1, 1);
+        ctx.stroke();
 
-            ctx.fillRect(
-                col * (CELL_SIZE + 1) + 1,
-                row * (CELL_SIZE + 1) + 1,
-                CELL_SIZE,
-                CELL_SIZE
+        if (drawRadius) {
+            ctx.beginPath();
+            ctx.ellipse(
+                point[0], point[1],
+                RADIUS, RADIUS,
+                0, 0, 2 * Math.PI
             );
-        }
-    }
-
-    ctx.stroke();
-}
-
-const drawRadius = () => {
-    const cellsPtr = disk.cells();
-    const cells = new Uint8Array(memory.buffer, cellsPtr, GRID_WIDTH * GRID_HEIGHT);
-
-    for (let row = 0; row < GRID_HEIGHT; row++) {
-        for (let col = 0; col < GRID_WIDTH; col++) {
-            const idx = getIndex(row, col);
-            if (cells[idx] === 1 || cells[idx] === 2) {
-                let cell_radius = CELL_SIZE * RADIUS;
-                ctx.beginPath();
-                let x = col * (CELL_SIZE + 1) + CELL_SIZE / 2 + 1;
-                let y = row * (CELL_SIZE + 1) + CELL_SIZE / 2 + 1;
-                ctx.ellipse(
-                    x, y,
-                    cell_radius, cell_radius,
-                    0, 0, 2 * Math.PI
-                );
-                ctx.stroke();
-            }
+            ctx.stroke();
         }
     }
 }
 
-
+const SAMPLES_PER_FRAME = 10;
 const renderLoop = () => {
-    drawCells();
-    drawRadius();
-    if (disk.tick()) {
-        requestAnimationFrame(renderLoop);
-    } else {
-        console.log('done!');
+    drawSamples(false);
+    for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
+        disk.tick();
     }
+    requestAnimationFrame(renderLoop);
 };
 
 renderLoop();
