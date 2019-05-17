@@ -12,6 +12,9 @@ const PI: f64 = 3.141529;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
+pub struct Point(pub usize, pub usize);
+
+#[wasm_bindgen]
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Cell {
@@ -20,7 +23,7 @@ pub enum Cell {
     // No longer on the active list
     DEAD = 1,
     // In the active list (used to generate additional points)
-    ACTIVE = 2
+    ACTIVE = 2,
 }
 
 #[wasm_bindgen]
@@ -37,6 +40,7 @@ pub struct PoissonDisk {
     grid: Vec<Option<(usize, usize)>>,
     // List of points we want to generate more points around.
     active: Vec<(usize, usize)>,
+    samples: Vec<Point>,
 }
 
 #[wasm_bindgen]
@@ -65,13 +69,14 @@ impl PoissonDisk {
             radius,
             num_samples,
             active: Vec::new(),
+            samples: Vec::new(),
         };
 
         // Step 1
         // Select the initial sample to be randomly chosen uniformly in the domain.
         let point = (
             (Math::random() * width as f64) as usize,
-            (Math::random() * height as f64) as usize
+            (Math::random() * height as f64) as usize,
         );
 
         disk.insert_point(point);
@@ -131,12 +136,8 @@ impl PoissonDisk {
 
         (
             new_x.max(0.0).min(self.width as f64 - 1.0) as usize,
-            new_y.max(0.0).min(self.height as f64 - 1.0) as usize
+            new_y.max(0.0).min(self.height as f64 - 1.0) as usize,
         )
-    }
-
-    fn get_index(&self, row: u32, column: u32) -> usize {
-        (row * self.width + column) as usize
     }
 
     pub fn width(&self) -> u32 {
@@ -147,14 +148,33 @@ impl PoissonDisk {
         self.height
     }
 
-    pub fn cells(&self) -> *const Cell {
-        self.cells.as_ptr()
+    pub fn num_points(&self) -> usize {
+        self.samples.len()
+    }
+
+    pub fn point_at_idx(&self, idx: usize) -> Point {
+        let point = &self.samples[idx];
+        Point(point.0, point.1)
+    }
+
+    pub fn reset(&mut self) {
+        self.active.clear();
+        self.grid.clear();
+        self.samples.clear();
+
+        let point = (
+            (Math::random() * self.width as f64) as usize,
+            (Math::random() * self.height as f64) as usize,
+        );
+
+        self.insert_point(point);
+        self.active.push(point);
     }
 
     pub fn tick(&mut self) -> bool {
         // While the active list is not empty, choose a random index.
         if self.active.is_empty() {
-            return false
+            return false;
         }
 
         // Choose a point randomly from active list
@@ -171,6 +191,7 @@ impl PoissonDisk {
             if self.is_valid(new_point) {
                 self.insert_point(new_point);
                 self.active.push(new_point);
+                self.samples.push(Point(new_point.0, new_point.1));
                 found = true;
             }
         }
